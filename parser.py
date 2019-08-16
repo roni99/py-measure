@@ -1,6 +1,6 @@
 import requests
-from bs4 import BeautifulSoup, NavigableString
 import json
+from bs4 import BeautifulSoup, NavigableString
 
 url = "https://www.nyu.edu/about/policies-guidelines-compliance/policies-and-guidelines/data-and-system-security-measures.html"
 
@@ -9,17 +9,14 @@ def main():
     res = requests.get(url)
     html = res.text
 
-    parser = BeautifulSoup(html, 'html.parser')
-
-    # Print children for each child of parser.head
-    # print([tag.contents for tag in parser.head.children if tag.name is not None])
-
-    # locating the list associated to the title
-    #print_tree(get_measures(parser, "D. Data Handling Security Measures").parent.ol)
-    ol_data = get_measures(parser, "D. Data Handling Security Measures").parent.ol
-    print(json.dumps(ol_to_list(ol_data), indent=4))
+    print(json.dumps(parse_measure(html, "D. Data Handling Security Measures"), indent=4))
 
     pass
+
+def parse_measure(html, measure_title):
+    parser = BeautifulSoup(html, "html.parser")
+    return ol_to_list(get_measures(parser, measure_title).parent.ol)
+
 
 def get_measures(root, title, name="h2"):
     return root.find(lambda tag : tag.string == title and tag.name == name)
@@ -48,10 +45,9 @@ def ol_to_list(root):
 
                     item = {
                         "title": alphanum_only(li.b.string).strip(),
-                        "value": ol_to_list(li.ol)
+                        "measures": ol_to_list(li.ol)
                     }
-                    # unstructured descriptions make parsing ambiguous, so treat them as part of the title;
-                    # -none of them are meaningful at the moment, as they are all followed by more descriptive lists
+                    # unstructured descriptions make parsing ambiguous; in this case, treating them as part of the title;
                     unstructured_description = "".join([string for string in li.contents if isinstance(string, NavigableString)])
                     item["title"] += unstructured_description
 
@@ -62,7 +58,7 @@ def ol_to_list(root):
                         non_title_text = alphanum_only(non_title_text).strip()
                     item = {
                         "title": alphanum_only(li.b.string).strip(),
-                        "value": non_title_text
+                        "measure": non_title_text
                     }
 
                 elif (has_sublist):
@@ -74,19 +70,6 @@ def ol_to_list(root):
                 this_list.append(item)
 
         return this_list
-
-def print_tree(root, depth=0):
-    # When calling on child, if child contains an ol, return child as list
-    # What's left is to
-    if (root is None):
-        pass
-    else:
-        print(" " * depth, "|", root.name)
-
-        for li in root.children:
-            if (li.name is not None):
-                print_tree(li, depth + 1)
-            pass
 
 if __name__ == "__main__":
     main()
