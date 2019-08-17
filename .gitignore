@@ -1,4 +1,8 @@
+measures.json
+
+*xlsx
+
 venv
 __pycache__
+
 .idea
-*xlsx
