@@ -25,8 +25,9 @@ def main():
     # all_measures is a list so the structure of the resulting json matches the structure of the website exactly
     all_measures = []
 
+    # For every level of measures (basic, moderate, etc.) store all sub-measures as objects into the all_measures list
     for type in measure_types:
-        filter_subtype =  lambda tag: tag.string == type and tag.name == "h2"
+        filter_subtype = lambda tag: tag.string == type and tag.name == "h2"
         ol_subtypes = parser.find(filter_subtype).parent.ol
         json_subtypes = ol_to_list(ol_subtypes)
         all_measures.append({

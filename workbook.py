@@ -5,7 +5,7 @@ from datetime import datetime
 
 def main():
 
-    timestamp_raw = str(datetime.now()).replace(" ", "_")
+    timestamp_raw = str(datetime.now()).replace(" ", "_").replace(":", "-")
     timestamp = timestamp_raw[:timestamp_raw.find(".")]
 
     workbook = xlsxwriter.Workbook("output/measure_workbook_" + timestamp + ".xlsx")
